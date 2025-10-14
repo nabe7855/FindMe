@@ -22,18 +22,18 @@ const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
     s: Store | ConciergeResult
   ): s is ConciergeResult => "recommendation_reason" in s;
 
-  /** 実際に表示する店舗データを生成 */
+  /** 表示用のデータを共通化 */
   const storeData: Store = isConciergeResult(store)
-    ? store.store ?? {
-        id: store.storeId,
-        name: "店舗情報未取得",
-        imageUrl: "/no-image.jpg",
-        genre: "",
-        area: "",
-        catch_phrase: "AI提案店舗（詳細情報なし）",
-        rating: 0, // ✅ 必須項目を追加
-        reviewCount: 0, // ✅ Store型に存在するため追加
-        prefecture: "", // ✅ 型整合のため追加
+    ? {
+        id: store.id,
+        name: store.name ?? "AI提案店舗",
+        imageUrl: store.image ?? "/no-image.jpg",
+        genre: store.genre ?? "",
+        area: store.area ?? "",
+        catch_phrase: store.description ?? "AI提案店舗（詳細情報なし）",
+        rating: store.rating ?? 0,
+        reviewCount: 0,
+        prefecture: store.prefecture ?? "",
         address: "",
         phone: "",
         openingHours: "",

@@ -1,136 +1,86 @@
 /**
- * @file Google Gemini APIとの通信を担当するサービス（AI機能オフ対応版）。
- * AIコンシェルジュ機能が無効な場合でも、ダミーデータで動作します。
+ * @file Google Gemini APIとの通信を担当するサーバーサイドサービス。
+ * クライアント側では fetch("/api/concierge") 経由で利用する。
  */
 
-import type { ConciergeResult } from "../types";
+import type { ConciergeResult } from "@/types";
 
-// ⚠️ GoogleのAI SDKをオプショナルに扱う（存在しなければ無視）
-let GoogleGenAI: any;
-let Type: any;
+// Google SDKを動的import（Next.js ESM対応）
+let GoogleGenerativeAI: any;
 
 try {
-  // @ts-ignore: optional import
-  ({ GoogleGenAI, Type } = require("@google/genai"));
+  const module = await import("@google/generative-ai");
+  GoogleGenerativeAI = module.GoogleGenerativeAI;
 } catch {
-  console.warn(
-    "⚠️ @google/genai がインストールされていません。AI機能はダミーモードで動作します。"
-  );
+  console.warn("⚠️ @google/generative-ai が見つかりません。モックモードで動作します。");
 }
 
-// APIキーが設定されていない場合の警告（安全に無視できる）
-if (!process.env.API_KEY) {
-  console.warn(
-    "⚠️ API_KEY is not set in environment variables. AI Concierge will run in mock mode."
-  );
+// APIキーの取得（サーバー専用）
+const API_KEY = process.env.GOOGLE_API_KEY;
+
+if (!API_KEY) {
+  console.warn("⚠️ GOOGLE_API_KEY が設定されていません。AI Concierge はモックで動作します。");
 }
 
-const ai = GoogleGenAI
-  ? new GoogleGenAI({ apiKey: process.env.API_KEY })
-  : null;
+const ai = GoogleGenerativeAI ? new GoogleGenerativeAI(API_KEY) : null;
 
 /**
  * ユーザーの入力に基づいて店舗を推薦（AIがなければダミーを返す）。
- * @param {string} userInput - ユーザーが入力した要望。
- * @returns {Promise<ConciergeResult[]>} 推薦結果配列。
+ * @param userInput ユーザーが入力した要望
+ * @returns ConciergeResult[]
  */
-export const askConcierge = async (
-  userInput: string
-): Promise<ConciergeResult[]> => {
-  // ✅ もし AI SDK が無い or KEY 無しならモックデータで返す
-  if (!ai) {
-    console.log("💡 Running in mock AI mode. Returning sample data...");
+export const askConcierge = async (userInput: string): Promise<ConciergeResult[]> => {
+  // ✅ モックモード
+  if (!ai || !API_KEY) {
+    console.log("💡 Mockモードで動作中。AIレスポンスは固定データです。");
 
     return [
       {
         id: 1,
-        storeId: 101,
-        recommendation_reason: `「${userInput}」にぴったりな雰囲気のカフェです。静かで読書にも最適。`,
-        matchScore: 0.9,
-        store: {
-          id: 101,
-          name: "カフェ・ルミエール",
-          genre: "カフェ",
-          area: "渋谷",
-          catch_phrase: "光が差し込む静かな午後を。",
-          rating: 4.6,
-          imageUrl: "https://picsum.photos/seed/mock1/800/600",
-        },
+        name: "カフェ・ルミエール",
+        description: `「${userInput}」にぴったりな雰囲気のカフェです。静かで読書にも最適。`,
+        genre: "カフェ",
+        area: "渋谷",
+        prefecture: "東京",
+        image: "https://picsum.photos/seed/mock1/800/600",
       },
       {
         id: 2,
-        storeId: 102,
-        recommendation_reason: `落ち着いた雰囲気と香り高いコーヒーが楽しめる人気店です。`,
-        matchScore: 0.85,
-        store: {
-          id: 102,
-          name: "カフェ・ノワール",
-          genre: "カフェ",
-          area: "代官山",
-          catch_phrase: "隠れ家のような癒し空間。",
-          rating: 4.4,
-          imageUrl: "https://picsum.photos/seed/mock2/800/600",
-        },
+        name: "カフェ・ノワール",
+        description: `落ち着いた雰囲気と香り高いコーヒーが楽しめる人気店です。`,
+        genre: "カフェ",
+        area: "代官山",
+        prefecture: "東京",
+        image: "https://picsum.photos/seed/mock2/800/600",
       },
       {
         id: 3,
-        storeId: 103,
-        recommendation_reason: `駅近でアクセスも抜群。友人との会話にもぴったり。`,
-        matchScore: 0.82,
-        store: {
-          id: 103,
-          name: "ブルーム珈琲店",
-          genre: "カフェ",
-          area: "新宿",
-          catch_phrase: "駅前のオアシス。",
-          rating: 4.3,
-          imageUrl: "https://picsum.photos/seed/mock3/800/600",
-        },
+        name: "ブルーム珈琲店",
+        description: `駅近でアクセスも抜群。友人との会話にもぴったり。`,
+        genre: "カフェ",
+        area: "新宿",
+        prefecture: "東京",
+        image: "https://picsum.photos/seed/mock3/800/600",
       },
     ];
   }
 
-  // ✅ 通常のAIモード（Gemini接続時）
+  // ✅ AIモード
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `ユーザーの要望「${userInput}」に合うお店を3つ提案してください。`,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              id: { type: Type.STRING },
-              name: { type: Type.STRING },
-              genre: { type: Type.STRING },
-              area: { type: Type.STRING },
-              rating: { type: Type.NUMBER },
-              imageUrl: { type: Type.STRING },
-              catch_phrase: { type: Type.STRING },
-              recommendation_reason: { type: Type.STRING },
-            },
-            required: [
-              "id",
-              "name",
-              "genre",
-              "area",
-              "rating",
-              "imageUrl",
-              "catch_phrase",
-              "recommendation_reason",
-            ],
-          },
-        },
-      },
-    });
+    const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const prompt = `
+      ユーザーの要望「${userInput}」に合うお店を3つ提案してください。
+      JSON配列で出力してください。
+      各オブジェクトには id, name, description, genre, area, prefecture, image を含めてください。
+    `;
 
-    const jsonText = response.text.trim();
-    const parsedResult = JSON.parse(jsonText);
-    return Array.isArray(parsedResult) ? parsedResult : [];
+    const result = await model.generateContent(prompt);
+    const text = await result.response.text();
+    const parsed = JSON.parse(text);
+
+    return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    console.error("❌ Error calling Gemini API:", error);
-    throw new Error("AIコンシェルジュからの応答の取得に失敗しました。");
+    console.error("❌ Gemini呼び出しエラー:", error);
+    throw new Error("AIコンシェルジュからの応答取得に失敗しました。");
   }
 };
