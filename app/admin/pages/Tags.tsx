@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Tag as TagType } from '../types';
+import { Tag as TagType } from './types';
 import { PlusCircle, Edit, Trash2, Search } from 'lucide-react';
 
 // Mock Data
