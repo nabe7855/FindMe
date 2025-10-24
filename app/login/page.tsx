@@ -23,7 +23,7 @@ export default function LoginPage() {
     } else {
       alert('ログイン成功🎉 ようこそ！')
       console.log('ログイン成功:', data)
-      router.push('/') // ✅ トップページへ自動遷移！
+      router.push('/admin')
     }
   }
 
