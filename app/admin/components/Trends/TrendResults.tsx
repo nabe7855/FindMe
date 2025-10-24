@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendData } from '../../types';
+import { TrendData } from '../../../../types';
 
 /**
  * TrendResultsコンポーネントが受け取るprops(プロパティ)の型定義。

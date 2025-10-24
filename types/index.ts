@@ -11,7 +11,7 @@ export interface Review {
   date?: string; // 投稿日（ISO形式 or yyyy-mm-dd）※任意
 }
 
-/** 店舗データ */
+/** 店舗データ（共通） */
 export interface Store {
   id: number;
   name: string; // 店舗名
@@ -35,55 +35,83 @@ export interface Store {
   reviews?: Review[]; // 関連する口コミ一覧
 }
 
+/** 🏠 来店型店舗データ */
+export interface PhysicalStore extends Store {
+  /** 駐車場情報（例: "店舗前に2台分あり" など） */
+  parkingInfo?: string;
+
+  /** 駐車場の有無（true: あり, false: なし） */
+  hasParking?: boolean;
+
+  /** 座席数（例: 40席） */
+  seatingCapacity?: number;
+
+  /** Googleマップなどの地図URL */
+  mapUrl?: string;
+
+  /** メニュー情報（例: ["ランチセット", "コーヒー", "ケーキ"]） */
+  menu?: string[];
+
+  /** 特典・オファー情報（例: ["初回10%OFF", "ドリンク無料券"]） */
+  offers?: string[]; // ← ✅ これを追加！
+}
+
+
+/** 🛍️ オンライン店舗データ */
+export interface OnlineStore extends Store {
+  /** 通販サイトURL */
+  websiteUrl?: string;
+
+  /** 配送オプション（例: "即日配送", "送料無料" など） */
+  deliveryOptions?: string[];
+
+  /** 決済方法（例: "クレジットカード", "PayPay" など） */
+  paymentMethods?: string[];
+
+  /** 在庫ステータス（例: "在庫あり", "在庫なし", "予約受付中"） */
+  stockStatus?: string;
+
+  /** 特集・キャンペーン（例: "秋のセール", "限定コラボ" など） */
+  campaign?: string;
+  
+}
+
 /** AIコンシェルジュの結果データ */
 export interface ConciergeResult {
-  /** 一意のID */
   id: number;
-
-  /** 店舗名 */
   name: string;
-
-  /** AIの推薦コメント・説明文 */
   description: string;
-
-  /** 業種（例: カフェ、居酒屋） */
   genre?: string;
-
-  /** 地域（例: 渋谷、新宿） */
   area?: string;
-
-  /** 都道府県（例: 東京） */
   prefecture?: string;
-
-  /** サムネイル画像URL */
   image?: string;
-
-  /** 5段階評価（AIが返す場合） */
   rating?: number;
-
-  /** ✅ AI推薦理由（StoreCardで使用中） */
   recommendation_reason?: string;
-
-  /** 任意：スコア（AIが付与するマッチ度） */
   matchScore?: number;
 }
 
 /** 🔍 検索条件の型 */
 export interface SearchCriteria {
-  /** 都道府県（例: "東京都", "大阪府", "全国"など） */
   prefecture: string;
-
-  /** ジャンル（例: "カフェ", "美容室", "居酒屋"など） */
   genre: string;
-
-  /** キーワード（例: "渋谷", "イタリアン", "癒し"など） */
   keyword: string;
-
-  /** 並び順（任意: "rating" | "newest" | "recommended" など） */
   sort?: "rating" | "newest" | "recommended";
 }
+
+/** 📈 トレンドデータ */
 export interface TrendData {
   risingKeywords: { keyword: string; volume: number }[];
   trendingStores: { name: string; reason: string }[];
   competitiveInsights: string;
+}
+/** 🛍️ オンライン店舗データ */
+export interface OnlineStore extends Store {
+  websiteUrl?: string;
+  deliveryOptions?: string[];
+  paymentMethods?: string[];
+  stockStatus?: string;
+  campaign?: string;
+
+  /** 配送に関する詳細情報（例: 送料、地域制限など） */
+  shippingInfo?: string;
 }

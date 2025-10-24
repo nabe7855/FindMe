@@ -1,12 +1,12 @@
 import React from 'react';
-import { Store } from '../../types';
+import { Store } from '../../../../types';
 
 /**
  * CommonFieldsコンポーネントが受け取るprops(プロパティ)の型定義。
  */
 interface CommonFieldsProps {
   store: Omit<Store, 'id'>;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange: (_e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 /**
@@ -37,7 +37,7 @@ const CommonFields: React.FC<CommonFieldsProps> = ({ store, onChange }) => {
             type="text" 
             id="category" 
             name="category" 
-            value={store.category} 
+            value={store.genre} 
             onChange={onChange} 
             required
             className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:ring-2 focus:ring-blue-accent focus:border-blue-accent outline-none" 

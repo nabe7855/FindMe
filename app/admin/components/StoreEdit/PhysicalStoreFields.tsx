@@ -1,12 +1,12 @@
 import React from 'react';
-import { PhysicalStore } from '../../types';
+import { PhysicalStore } from '../../../../types';
 
 /**
  * PhysicalStoreFieldsコンポーネントが受け取るprops(プロパティ)の型定義。
  */
 interface PhysicalStoreFieldsProps {
   store: Omit<PhysicalStore, 'id'>;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange: (_e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 /**

@@ -1,12 +1,12 @@
 import React from 'react';
-import { OnlineStore } from '../../types';
+import { OnlineStore } from '../../../../types';
 
 /**
  * OnlineStoreFieldsコンポーネントが受け取るprops(プロパティ)の型定義。
  */
 interface OnlineStoreFieldsProps {
   store: Omit<OnlineStore, 'id'>;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange: (_datae: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 /**
