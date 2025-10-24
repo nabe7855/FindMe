@@ -82,3 +82,8 @@ export interface SearchCriteria {
   /** 並び順（任意: "rating" | "newest" | "recommended" など） */
   sort?: "rating" | "newest" | "recommended";
 }
+export interface TrendData {
+  risingKeywords: { keyword: string; volume: number }[];
+  trendingStores: { name: string; reason: string }[];
+  competitiveInsights: string;
+}

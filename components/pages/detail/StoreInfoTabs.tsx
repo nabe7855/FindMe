@@ -2,7 +2,7 @@
  * @file 店舗詳細ページの詳細情報（基本情報、口コミ、地図）をタブで表示するコンポーネント。
  */
 import React from 'react';
-import { Store, Review } from '../../../types';
+import { Store } from '../../../types';
 import Tabs from '../../ui/Tabs';
 import ReviewCard from '../../common/ReviewCard';
 import Button from '../../ui/Button';

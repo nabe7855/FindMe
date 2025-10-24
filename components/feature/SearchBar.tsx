@@ -54,7 +54,7 @@ const handleSearch = (e: React.FormEvent) => {
 
   // ✅ オプショナルを除外して安全にURL化
   const filteredCriteria = Object.fromEntries(
-    Object.entries(criteria).filter(([_, v]) => v)
+    Object.entries(criteria).filter(([, v]) => v)
   ) as Record<string, string>;
 
   const query = new URLSearchParams(filteredCriteria).toString();
